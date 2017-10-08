@@ -7,7 +7,7 @@ Inspired by [skywinder/github-changelog-generator](https://github.com/skywinder/
 
 ## Contributing
 
-See [CONTRIBUTING.md](contributing.md) for details on how to contribute to this project.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to contribute to this project.
 ## License
 
 bowie - A pretty changelog generator 
