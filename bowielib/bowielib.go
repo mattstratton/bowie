@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"strconv"
 	"time"
 
 	"golang.org/x/oauth2"
@@ -72,17 +71,14 @@ func ChangeLog(username, project string) error {
 	fmt.Fprintf(color.Output, "Your username is %s and your projectname is %s \n", color.GreenString(userName), color.GreenString(projectName))
 
 	issues, _ := GetIssues()
-	tags, _ := GetTags()
 
 	fmt.Println("Issues:")
 	for k, v := range issues {
-		fmt.Println("ID: " + strconv.Itoa(k) + " at " + v.String())
-	}
-	fmt.Println("Tags:")
-	for k, v := range tags {
-		fmt.Println("Tag: " + k + " at " + v.String())
+		myTag, _ := GetIssueTag(v)
+		fmt.Println("Issue: " + GetIssueNameByID(k) + " resolved in tag " + myTag)
 	}
 	return nil
+
 }
 
 // GetIssues gets the list of all closed issues for the username and project, and returns a map of them
@@ -136,4 +132,44 @@ func GetTags() (map[string]time.Time, error) {
 		m[d.GetName()] = tag.Author.GetDate()
 	}
 	return m, nil
+}
+
+func GetIssueTag(date time.Time) (string, error) {
+	var myTag string
+	tags, _ := GetTags()
+	for k, v := range tags {
+		if date.After(v) {
+			myTag = k
+		}
+	}
+	return myTag, nil
+
+}
+
+func GetIssueNameByID(id int) (name string) {
+
+	ctx := context.Background()
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: token},
+	)
+	tc := oauth2.NewClient(ctx, ts)
+
+	client := github.NewClient(tc)
+
+	// list all issues in the repo
+	issueOpts := &github.IssueListByRepoOptions{
+		State: "closed",
+	}
+	issues, _, _ := client.Issues.ListByRepo(ctx, userName, projectName, issueOpts)
+	// if err != nil {
+	// 	return nil, errors.Wrap(err, "GitHub issue list failed")
+	// }
+
+	for _, d := range issues {
+		if d.GetID() == id {
+			return d.GetTitle()
+		}
+	}
+
+	return ""
 }
