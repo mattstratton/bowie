@@ -1,18 +1,24 @@
 package bowielib
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"strconv"
+	"time"
 
-	homedir "github.com/mitchellh/go-homedir"
+	"golang.org/x/oauth2"
+
+	"github.com/fatih/color"
+	"github.com/google/go-github/github"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var (
-	cfgFile     string
 	userName    string
 	projectName string
+	token       string
 )
 
 // RootCmd is the main command executed when bowie is run
@@ -24,45 +30,110 @@ built with love by mattstratton in Go.
 	
 Complete documentation is available at https://github.com/mattstratton/bowie`,
 
-	Run: func(cmd *cobra.Command, args []string) {
-		// Do Stuff Here
+	Run: func(bowielib *cobra.Command, args []string) {
+		ChangeLog(userName, projectName)
 	},
 }
 
 func init() {
-	cobra.OnInitialize(initConfig)
-	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.bowie.yaml)")
-	RootCmd.PersistentFlags().StringVarP(&userName, "username", "u", "", "github user/org name, i.e., mattstratton")
-	RootCmd.PersistentFlags().StringVarP(&projectName, "projectname", "p", "", "github project name, i.e., bowie")
-	viper.BindPFlag("username", RootCmd.PersistentFlags().Lookup("username"))       // nolint: errcheck
-	viper.BindPFlag("projectname", RootCmd.PersistentFlags().Lookup("projectname")) // nolint: errcheck
+	RootCmd.PersistentFlags().StringVarP(&userName, "user", "u", "", "Username of the owner of target GitHub repo")
+	RootCmd.PersistentFlags().StringVarP(&projectName, "project", "p", "", "Name of project on GitHub")
+	RootCmd.PersistentFlags().StringVarP(&token, "token", "t", "", "To make more than 50 requests per hour your GitHub token is required. You can generate it at: https://github.com/settings/tokens/new")
+	if (os.Getenv("BOWIE_GITHUB_TOKEN") == "") && (token == "") {
+		fmt.Fprintf(color.Output, "\n%s%s%s%s%s%s\n", color.RedString("ERROR: "), color.YellowString("You need to either set the "), color.GreenString("BOWIE_GITHUB_TOKEN"), color.YellowString(" environment variable or use the "), color.GreenString("--token "), color.YellowString("flag."))
+		os.Exit(1)
+	}
+	var err error
+	token, err = GetToken()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
 
-// Execute runs the main bowie command
 func Execute() {
 	RootCmd.Execute() // nolint: errcheck
 }
 
-func initConfig() {
-	// Don't forget to read config either from cfgFile or from home directory!
-	if cfgFile != "" {
-		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
+// GetToken returns the GitHub token based on environment variable or flag (flag takes precedence)
+func GetToken() (string, error) {
+	if token != "" {
+		return token, nil
 	} else {
-		// Find home directory.
-		home, err := homedir.Dir()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+		if os.Getenv("BOWIE_GITHUB_TOKEN") != "" {
+			return os.Getenv("BOWIE_GITHUB_TOKEN"), nil
 		}
+	}
+	return "", errors.Wrap(nil, "token set failed")
+}
 
-		// Search config in home directory with name ".bowie" (without extension).
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".bowie")
+// ChangeLog generates the changelog with the given flags/configuration
+func ChangeLog(username, project string) error {
+	fmt.Fprintf(color.Output, "Your username is %s and your projectname is %s \n", color.GreenString(userName), color.GreenString(projectName))
+
+	issues, _ := GetIssues()
+	tags, _ := GetTags()
+
+	fmt.Println("Issues:")
+	for k, v := range issues {
+		fmt.Println("ID: " + strconv.Itoa(k) + " at " + v.String())
+	}
+	fmt.Println("Tags:")
+	for k, v := range tags {
+		fmt.Println("Tag: " + k + " at " + v.String())
+	}
+	return nil
+}
+
+// GetIssues gets the list of all closed issues for the username and project, and returns a map of them
+func GetIssues() (map[int]time.Time, error) {
+	ctx := context.Background()
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: token},
+	)
+	tc := oauth2.NewClient(ctx, ts)
+
+	client := github.NewClient(tc)
+
+	// list all issues in the repo
+	issueOpts := &github.IssueListByRepoOptions{
+		State: "closed",
+	}
+	issues, _, err := client.Issues.ListByRepo(ctx, userName, projectName, issueOpts)
+	if err != nil {
+		return nil, errors.Wrap(err, "GitHub issue list failed")
 	}
 
-	if err := viper.ReadInConfig(); err != nil {
-		fmt.Println("Can't read config:", err)
-		os.Exit(1)
+	m := make(map[int]time.Time)
+	for _, d := range issues {
+		m[d.GetID()] = d.GetClosedAt()
 	}
+
+	return m, nil
+}
+
+// GetTags gets the list of all tags for the username and project, and returns a map of them
+func GetTags() (map[string]time.Time, error) {
+	ctx := context.Background()
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: token},
+	)
+	tc := oauth2.NewClient(ctx, ts)
+
+	client := github.NewClient(tc)
+
+	// list all tags in the repo
+	tags, _, err := client.Repositories.ListTags(ctx, userName, projectName, nil)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "GitHub tag list failed")
+	}
+
+	m := make(map[string]time.Time)
+	for _, d := range tags {
+		sha := d.Commit.GetSHA()
+		tag, _, _ := client.Git.GetCommit(ctx, userName, projectName, sha)
+		m[d.GetName()] = tag.Author.GetDate()
+	}
+	return m, nil
 }
