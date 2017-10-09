@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"sort"
 	"time"
 
 	"golang.org/x/oauth2"
@@ -56,6 +57,11 @@ func Execute() {
 	RootCmd.Execute() // nolint: errcheck
 }
 
+type myTag struct {
+	Name string
+	Date time.Time
+}
+
 // GetToken returns the GitHub token based on environment variable or flag (flag takes precedence)
 func GetToken() (string, error) {
 	if token != "" {
@@ -76,53 +82,39 @@ func ChangeLog(username, project string) error {
 
 	issues, _ := c.GetIssues(userName, projectName)
 
-	for _, issue := range issues {
-		// closedate := issue.GetClosedAt()
-		myTag, _ := GetIssueTag(issue.GetClosedAt())
-		// closedate = closedate.String()
-		fmt.Fprintf(color.Output, "Issue title is: %s and it was closed by %s\n", color.GreenString(issue.GetTitle()), color.GreenString(myTag))
+	tags, _ := GetTags()
+	sort.Slice(tags, func(i, j int) bool {
+		return tags[i].Date.After(tags[j].Date)
+	})
+	for i, d := range tags {
+		fmt.Fprintf(color.Output, "%s %s \n", color.GreenString("Release:"), color.BlueString(d.Name))
+		fmt.Fprintf(color.Output, "%s \n", color.CyanString("Fixed issues:"))
+		// fmt.Println("Current tag: " + d.Name)
+		if i != (len(tags) - 1) { //@TODO@ Figure out how to get the last issues to show up
+			// fmt.Println("Next tag: " + tags[i+1].Name)
+			for _, issue := range issues {
+				if (issue.GetClosedAt().Before(d.Date)) && (issue.GetClosedAt().After(tags[i+1].Date)) {
+					fmt.Fprintf(color.Output, "* %s \n", color.GreenString(issue.GetTitle()))
+					// fmt.Println(issue.GetTitle())
+				}
+			}
 
+		}
 	}
-	// fmt.Println("Issues:")
-	// for k, v := range issues {
-	// 	myTag, _ := GetIssueTag(v)
-	// 	fmt.Println("Issue: " + GetIssueNameByID(k) + " resolved in tag " + myTag)
-	// }
+
 	return nil
 
 }
 
-// GetIssues gets the list of all closed issues for the username and project, and returns a map of them
-// func GetIssues(c *githubClient) (map[int]time.Time, error) {
-
-// 	client := client.NewGitHub
-
-// 	// list all issues in the repo
-// 	issueOpts := &github.IssueListByRepoOptions{
-// 		State: "closed",
-// 	}
-// 	issues, _, err := client.Issues.ListByRepo(ctx, userName, projectName, issueOpts)
-// 	if err != nil {
-// 		return nil, errors.Wrap(err, "GitHub issue list failed")
-// 	}
-
-// 	m := make(map[int]time.Time)
-// 	for _, d := range issues {
-// 		m[d.GetID()] = d.GetClosedAt()
-// 	}
-
-// 	return m, nil
-// }
-
 // GetTags gets the list of all tags for the username and project, and returns a map of them
-func GetTags() (map[string]time.Time, error) {
+func GetTags() ([]*myTag, error) {
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
 	)
 	tc := oauth2.NewClient(ctx, ts)
 
-	client := github.NewClient(tc)
+	client := github.NewClient(tc) //@TODO@ Change GetTags to be a methon on client
 
 	// list all tags in the repo
 	tags, _, err := client.Repositories.ListTags(ctx, userName, projectName, nil)
@@ -130,55 +122,14 @@ func GetTags() (map[string]time.Time, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "GitHub tag list failed")
 	}
-
-	m := make(map[string]time.Time)
+	taggers := []*myTag{}
 	for _, d := range tags {
 		sha := d.Commit.GetSHA()
 		tag, _, _ := client.Git.GetCommit(ctx, userName, projectName, sha)
-		m[d.GetName()] = tag.Author.GetDate()
+		someTag := new(myTag)
+		someTag.Name = d.GetName()
+		someTag.Date = tag.Author.GetDate()
+		taggers = append(taggers, someTag)
 	}
-	return m, nil
-}
-
-// GetIssueTag takes in a date (from an issue, probably?) and returns the associated tag where it was closed.
-// This is not nearly clear enough; it should be something like GetTagFromDate but even that is stupid.
-func GetIssueTag(date time.Time) (string, error) {
-	var myTag string
-	tags, _ := GetTags()
-	for k, v := range tags {
-		if date.After(v) {
-			myTag = k
-		}
-	}
-	return myTag, nil
-
-}
-
-// GetIssueNameByID takes in a GitHub issue ID and returns the Title of the issue.
-func GetIssueNameByID(id int) (name string) {
-
-	ctx := context.Background()
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token},
-	)
-	tc := oauth2.NewClient(ctx, ts)
-
-	client := github.NewClient(tc)
-
-	// list all issues in the repo
-	issueOpts := &github.IssueListByRepoOptions{
-		State: "closed",
-	}
-	issues, _, _ := client.Issues.ListByRepo(ctx, userName, projectName, issueOpts)
-	// if err != nil {
-	// 	return nil, errors.Wrap(err, "GitHub issue list failed")
-	// }
-
-	for _, d := range issues {
-		if d.GetID() == id {
-			return d.GetTitle()
-		}
-	}
-
-	return ""
+	return taggers, nil
 }
