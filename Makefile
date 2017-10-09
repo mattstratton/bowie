@@ -9,6 +9,8 @@ setup:
 	go get -u github.com/pierrre/gotestcover
 	go get -u golang.org/x/tools/cmd/cover
 	dep ensure
+	go get -u github.com/inconshreveable/mousetrap
+	go get -u github.com/mattn/goveralls
 	gometalinter --install
 
 # Run all the tests
@@ -29,5 +31,10 @@ ci: test lint
 # Build a beta version of bowie
 build:
 	go build
+
+
+# Coveralls stuff
+travis:
+	$(HOME)/gopath/bin/goveralls -service=travis-ci
 
 .DEFAULT_GOAL := build

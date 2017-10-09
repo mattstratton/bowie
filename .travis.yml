@@ -1,0 +1,28 @@
+dist: trusty
+sudo: false
+language: go
+# addons:
+#   apt:
+#     packages:
+#     - rpm
+go: 1.9
+before_install:
+  - make setup
+install:
+- make install
+script:
+  - make travis
+  - make ci
+  - test -n "$TRAVIS_TAG"
+# deploy:
+#   skip_cleanup: true
+#   provider: script
+#   script: make deploy
+#   on:
+#     tags: true
+# notifications:
+#   email: false
+# env:
+#   global:
+#     - JFROG_CLI_OFFER_CONFIG=false
+#     - secure: WL1VW5Vfm/id7qUhZWF/C+uAQSjF9mcCZw2NmNtf7uIvLNw/lFfWVG5TN3C8jOM15JLAaMZzZIPct6WzQ4MG0JeZ6qXDwWtaxSN+9YMxsVjUmoDvxQroVRoRMwfekkafB1ScFcDggEjsRHTIV4MzgSkUuq0YUZC6klwRuKS0SyzYBY8GOUKXKWlh/i5LjFiColWDtiz7D6ONdCVY/PBJDVuEQcODbR+PSRlqGuY/ueqopSc47xo9m15nnBTljrx6cryb7nlquYDSJHfUvNo+K/81CjQb3P2WoZji4TMxhed+vDoKilycnsjxw1W4P2MfjWAmrJr97HFKnQnLge3tEzT/42u1th7+KgyYrTgrowpdFzQPfulANB7qDD9ScPUqK0fj4P7tLLrNS+sA3PmLxOHjNbrfGdI/MJI3IWeDNFKcuHNnmFG6aFrBXgPhdd/A3OYDuinCOW8eFinVJCefhGghMLBhsAexzgf3palpzEtzGwFStZ45gJv88QLTpvY1EzKFtirYLJR3o4CggJD7tMyedzwLz2FESTiHfhjC03mwArN2IFpZKQv+KyF5Q5iKwEqow+ipjrWjMN9sWrqC4LnHU2/xuurTOwnaciRj2TxGeXrt41wwL06fGn6muEB7VnMn3abXdfutmF7dkjv0xlegztOTrH9j9cuYZvweclw=
