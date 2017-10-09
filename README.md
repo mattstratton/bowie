@@ -1,3 +1,4 @@
+[![Ebert](https://ebertapp.io/github/mattstratton/bowie.svg)](https://ebertapp.io/github/mattstratton/bowie) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/c3f1eeb0b0bb4c68ba94df95cffefe0c)](https://www.codacy.com/app/matt.stratton/bowie?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=mattstratton/bowie&amp;utm_campaign=Badge_Grade) [![BCH compliance](https://bettercodehub.com/edge/badge/mattstratton/bowie?branch=master)](https://bettercodehub.com/) [![Coverage Status](https://coveralls.io/repos/github/mattstratton/bowie/badge.svg?branch=master)](https://coveralls.io/github/mattstratton/bowie?branch=master) [![codebeat badge](https://codebeat.co/badges/cbd7bfdf-e8d6-44b4-a377-20662bb2dbac)](https://codebeat.co/projects/github-com-mattstratton-bowie-master)
 # bowie
 A pretty changelog generator 
 
