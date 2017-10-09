@@ -6,14 +6,12 @@ language: go
 #     packages:
 #     - rpm
 go: 1.9
-before_install:
-  - make setup
 install:
   - make setup
 script:
   - make travis
   - make ci
-  - test -n "$TRAVIS_TAG"
+  # - test -n "$TRAVIS_TAG"
 # deploy:
 #   skip_cleanup: true
 #   provider: script
