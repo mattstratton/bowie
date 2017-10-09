@@ -9,7 +9,7 @@ go: 1.9
 before_install:
   - make setup
 install:
-- make install
+  - make setup
 script:
   - make travis
   - make ci
