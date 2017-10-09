@@ -10,6 +10,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/google/go-github/github"
+	"github.com/mattstratton/bowie/client"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
@@ -30,7 +31,7 @@ built with love by mattstratton in Go.
 Complete documentation is available at https://github.com/mattstratton/bowie`,
 
 	Run: func(bowielib *cobra.Command, args []string) {
-		ChangeLog(userName, projectName)
+		ChangeLog(userName, projectName) // nolint: errcheck
 	},
 }
 
@@ -50,6 +51,7 @@ func init() {
 	}
 }
 
+// Execute is the main root command of bowie
 func Execute() {
 	RootCmd.Execute() // nolint: errcheck
 }
@@ -58,55 +60,59 @@ func Execute() {
 func GetToken() (string, error) {
 	if token != "" {
 		return token, nil
-	} else {
-		if os.Getenv("BOWIE_GITHUB_TOKEN") != "" {
-			return os.Getenv("BOWIE_GITHUB_TOKEN"), nil
-		}
+	}
+	if os.Getenv("BOWIE_GITHUB_TOKEN") != "" {
+		return os.Getenv("BOWIE_GITHUB_TOKEN"), nil
 	}
 	return "", errors.Wrap(nil, "token set failed")
 }
 
 // ChangeLog generates the changelog with the given flags/configuration
 func ChangeLog(username, project string) error {
+
+	c, _ := client.NewGitHub(token)
+
 	fmt.Fprintf(color.Output, "Your username is %s and your projectname is %s \n", color.GreenString(userName), color.GreenString(projectName))
 
-	issues, _ := GetIssues()
+	issues, _ := c.GetIssues(userName, projectName)
 
-	fmt.Println("Issues:")
-	for k, v := range issues {
-		myTag, _ := GetIssueTag(v)
-		fmt.Println("Issue: " + GetIssueNameByID(k) + " resolved in tag " + myTag)
+	for _, issue := range issues {
+		// closedate := issue.GetClosedAt()
+		myTag, _ := GetIssueTag(issue.GetClosedAt())
+		// closedate = closedate.String()
+		fmt.Fprintf(color.Output, "Issue title is: %s and it was closed by %s\n", color.GreenString(issue.GetTitle()), color.GreenString(myTag))
+
 	}
+	// fmt.Println("Issues:")
+	// for k, v := range issues {
+	// 	myTag, _ := GetIssueTag(v)
+	// 	fmt.Println("Issue: " + GetIssueNameByID(k) + " resolved in tag " + myTag)
+	// }
 	return nil
 
 }
 
 // GetIssues gets the list of all closed issues for the username and project, and returns a map of them
-func GetIssues() (map[int]time.Time, error) {
-	ctx := context.Background()
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token},
-	)
-	tc := oauth2.NewClient(ctx, ts)
+// func GetIssues(c *githubClient) (map[int]time.Time, error) {
 
-	client := github.NewClient(tc)
+// 	client := client.NewGitHub
 
-	// list all issues in the repo
-	issueOpts := &github.IssueListByRepoOptions{
-		State: "closed",
-	}
-	issues, _, err := client.Issues.ListByRepo(ctx, userName, projectName, issueOpts)
-	if err != nil {
-		return nil, errors.Wrap(err, "GitHub issue list failed")
-	}
+// 	// list all issues in the repo
+// 	issueOpts := &github.IssueListByRepoOptions{
+// 		State: "closed",
+// 	}
+// 	issues, _, err := client.Issues.ListByRepo(ctx, userName, projectName, issueOpts)
+// 	if err != nil {
+// 		return nil, errors.Wrap(err, "GitHub issue list failed")
+// 	}
 
-	m := make(map[int]time.Time)
-	for _, d := range issues {
-		m[d.GetID()] = d.GetClosedAt()
-	}
+// 	m := make(map[int]time.Time)
+// 	for _, d := range issues {
+// 		m[d.GetID()] = d.GetClosedAt()
+// 	}
 
-	return m, nil
-}
+// 	return m, nil
+// }
 
 // GetTags gets the list of all tags for the username and project, and returns a map of them
 func GetTags() (map[string]time.Time, error) {
@@ -134,6 +140,8 @@ func GetTags() (map[string]time.Time, error) {
 	return m, nil
 }
 
+// GetIssueTag takes in a date (from an issue, probably?) and returns the associated tag where it was closed.
+// This is not nearly clear enough; it should be something like GetTagFromDate but even that is stupid.
 func GetIssueTag(date time.Time) (string, error) {
 	var myTag string
 	tags, _ := GetTags()
@@ -146,6 +154,7 @@ func GetIssueTag(date time.Time) (string, error) {
 
 }
 
+// GetIssueNameByID takes in a GitHub issue ID and returns the Title of the issue.
 func GetIssueNameByID(id int) (name string) {
 
 	ctx := context.Background()
