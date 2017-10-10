@@ -2,10 +2,11 @@
  [![Go Report Card](https://goreportcard.com/badge/github.com/mattstratton/bowie)](https://goreportcard.com/report/github.com/mattstratton/bowie) [![GoDoc](https://godoc.org/github.com/mattstratton/bowie?status.svg)](http://godoc.org/github.com/mattstratton/bowie) [![GitHub release](https://img.shields.io/github/release/mattstratton/bowie.svg)](https://github.com/mattstratton/bowie/releases) [![MIT License](http://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) <br />
 [![Ebert](https://ebertapp.io/github/mattstratton/bowie.svg)](https://ebertapp.io/github/mattstratton/bowie) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/c3f1eeb0b0bb4c68ba94df95cffefe0c)](https://www.codacy.com/app/matt.stratton/bowie?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=mattstratton/bowie&amp;utm_campaign=Badge_Grade) [![BCH compliance](https://bettercodehub.com/edge/badge/mattstratton/bowie?branch=master)](https://bettercodehub.com/) [![Coverage Status](https://coveralls.io/repos/github/mattstratton/bowie/badge.svg?branch=master)](https://coveralls.io/github/mattstratton/bowie?branch=master) [![codebeat badge](https://codebeat.co/badges/cbd7bfdf-e8d6-44b4-a377-20662bb2dbac)](https://codebeat.co/projects/github-com-mattstratton-bowie-master)
 
+![bowie](bowie-logo.png)
 > Time may change me<br>
 > But I can't trace time<br>
 > *-- David Bowie*
-# bowie
+![bowie](bowie-logo.png)
 A pretty changelog generator 
 
 Built with :heart: by [@mattstratton](https://github.com/mattstratton) in Go.
@@ -99,6 +100,7 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 * [skywinder/github-changelog-generator](https://github.com/skywinder/github-changelog-generator)
 * [goreleaser/goreleaser](https://github.com/goreleaser/goreleaser)
 * [spf13/cobra](https://github.com/spf13/cobra)
+* Logo via [David Bowie by James Fenton](https://thenounproject.com/term/david-bowie/128345/) from [the Noun Project](https://thenounproject.com/)
 ## License
 
 bowie - A pretty changelog generator 
