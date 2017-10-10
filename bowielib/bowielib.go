@@ -57,7 +57,8 @@ func Execute() {
 	RootCmd.Execute() // nolint: errcheck
 }
 
-type myTag struct {
+// MyTag is the struct for a tag
+type MyTag struct {
 	Name string
 	Date time.Time
 }
@@ -107,7 +108,7 @@ func ChangeLog(username, project string) error {
 }
 
 // GetTags gets the list of all tags for the username and project, and returns a map of them
-func GetTags() ([]*myTag, error) {
+func GetTags() ([]*MyTag, error) {
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
@@ -122,11 +123,11 @@ func GetTags() ([]*myTag, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "GitHub tag list failed")
 	}
-	taggers := []*myTag{}
+	taggers := []*MyTag{}
 	for _, d := range tags {
 		sha := d.Commit.GetSHA()
 		tag, _, _ := client.Git.GetCommit(ctx, userName, projectName, sha)
-		someTag := new(myTag)
+		someTag := new(MyTag)
 		someTag.Name = d.GetName()
 		someTag.Date = tag.Author.GetDate()
 		taggers = append(taggers, someTag)
