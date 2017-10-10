@@ -12,3 +12,27 @@ requestInfoDefaultTitles:
 
 # *OPTIONAL* Label to be added to Issues and Pull Requests with insufficient information given
 requestInfoLabelToAdd: needs-more-info
+
+# Configuration for welcome - https://github.com/behaviorbot/welcome
+
+# Configuration for new-issue-welcome - https://github.com/behaviorbot/new-issue-welcome
+
+# Comment to be posted to on first time issues
+newIssueWelcomeComment: >
+  Thanks for opening your first issue here! Be sure to follow the issue template and [Code of Conduct](https://github.com/mattstratton/bowie/blob/master/CODE_OF_CONDUCT.md)!
+
+# Configuration for new-pr-welcome - https://github.com/behaviorbot/new-pr-welcome
+
+# Comment to be posted to on PRs from first time contributors in your repository
+newPRWelcomeComment: >
+  :heart: Thanks for opening this pull request! :heart:
+  
+  Please check out our [contributing guidelines](https://github.com/mattstratton/bowie/blob/master/CONTRIBUTING.md).
+  
+  ![jack tripper](http://www.reactiongifs.com/r/jty.gif)
+
+# Comment to be posted to on pull requests merged by a first time user
+firstPRMergeComment: >
+  Congrats on merging your first pull request! :100:
+  
+  ![](http://www.reactiongifs.com/wp-content/uploads/2013/11/LOKI_approves.gif)
