@@ -91,7 +91,7 @@ func ChangeLog(username, project string) error {
 		fmt.Fprintf(color.Output, "%s %s \n", color.GreenString("Release:"), color.BlueString(d.Name))
 		fmt.Fprintf(color.Output, "%s \n", color.CyanString("Fixed issues:"))
 		// fmt.Println("Current tag: " + d.Name)
-		if i != (len(tags) - 1) { //@TODO@ Figure out how to get the last issues to show up
+		if i != (len(tags) - 1) { //@TODO Figure out how to get the last issues to show up
 			// fmt.Println("Next tag: " + tags[i+1].Name)
 			for _, issue := range issues {
 				if (issue.GetClosedAt().Before(d.Date)) && (issue.GetClosedAt().After(tags[i+1].Date)) {
@@ -115,7 +115,7 @@ func GetTags() ([]*MyTag, error) {
 	)
 	tc := oauth2.NewClient(ctx, ts)
 
-	client := github.NewClient(tc) //@TODO@ Change GetTags to be a methon on client
+	client := github.NewClient(tc) //@TODO Change GetTags to be a methon on client
 
 	// list all tags in the repo
 	tags, _, err := client.Repositories.ListTags(ctx, userName, projectName, nil)
