@@ -6,7 +6,7 @@
 > Time may change me<br>
 > But I can't trace time<br>
 > *-- David Bowie*
-![bowie](bowie-logo.png)
+
 A pretty changelog generator 
 
 Built with :heart: by [@mattstratton](https://github.com/mattstratton) in Go.
