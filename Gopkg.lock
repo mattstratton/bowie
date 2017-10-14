@@ -14,6 +14,12 @@
   revision = "a5fe2436ffcb3236e175e5149162b41cd28bd27d"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/dimiro1/banner"
+  packages = ["."]
+  revision = "c2f858997d49ffd03f84818bef3c25c2fcc67e16"
+
+[[projects]]
   name = "github.com/fatih/color"
   packages = ["."]
   revision = "570b54cabe6b8eb0bc2dfce68d964677d63b5260"
@@ -106,6 +112,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "85b132554da743ccad5ea02ab51bfa448c8c9876cb61fa674664ff624673178c"
+  inputs-digest = "693818f6d7d1d99a4a03f8af09d6a238a4fcfa996f3816321f92cf3ea2839969"
   solver-name = "gps-cdcl"
   solver-version = 1
