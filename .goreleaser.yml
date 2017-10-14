@@ -1,0 +1,56 @@
+project_name: bowie
+release:
+  github:
+    owner: mattstratton
+    name: bowie
+  draft: false
+  prerelease: true
+brew:
+  install: bin.install "bowie"
+builds:
+- goos:
+  - linux
+  - darwin
+  - windows
+  goarch:
+  - amd64
+  - "386"
+  goarm:
+  - "6"
+  main: .
+  ldflags: -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
+  binary: bowie
+archive:
+  format: tar.gz
+  format_overrides:
+    - goos: windows
+      format: zip
+  name_template: "{{.Binary}}_{{.Version}}_{{.Os}}-{{.Arch}}"
+  files:
+  - LICENSE*
+  - README*
+snapshot:
+  name_template: SNAPSHOT-{{ .Commit }}
+checksum:
+  name_template: '{{ .ProjectName }}_{{ .Version }}_checksums.txt'
+brew:
+  github:
+    owner: mattstratton
+    name: homebrew-tap
+  homepage: https://github.com/mattstratton/bowie
+  description: A pretty changelong generator
+  dependencies:
+    - git
+  install:
+    bin.install "bowie"
+# fpm:
+#   vendor: mattstratton
+#   homepage: https://github.com/mattstratton/bowie
+#   maintainer: Matt Stratton <matt.stratton@gmail.com>
+#   description: A pretty changelong generator
+#   license: MIT
+#   formats:
+#     - deb
+#     - rpm
+#   dependencies:
+#     - git

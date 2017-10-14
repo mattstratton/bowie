@@ -32,6 +32,8 @@ ci: test lint
 build:
 	go build
 
+deploy:
+	- curl -sL https://git.io/goreleaser | rvm 2.4.1 do bash
 
 # Coveralls stuff
 travis:

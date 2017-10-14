@@ -12,12 +12,12 @@ script:
   - make travis
   - make ci
   # - test -n "$TRAVIS_TAG"
-# deploy:
-#   skip_cleanup: true
-#   provider: script
-#   script: make deploy
-#   on:
-#     tags: true
+deploy:
+  skip_cleanup: true
+  provider: script
+  script: make deploy
+  on:
+    tags: true
 # notifications:
 #   email: false
 # env:
