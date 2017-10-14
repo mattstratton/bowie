@@ -26,7 +26,8 @@ lint:
 	gometalinter --vendor ./...
 
 # Run all the tests and code checks
-ci: test lint
+# ci: test lint
+ci: test
 
 # Build a beta version of bowie
 build:
