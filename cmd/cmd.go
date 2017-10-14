@@ -1,14 +1,18 @@
-package bowielib
+package cmd
 
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"sort"
 	"time"
 
 	"golang.org/x/oauth2"
 
+	"text/template"
+
+	rice "github.com/GeertJohan/go.rice"
 	"github.com/fatih/color"
 	"github.com/google/go-github/github"
 	"github.com/mattstratton/bowie/client"
@@ -31,7 +35,7 @@ built with love by mattstratton in Go.
 	
 Complete documentation is available at https://github.com/mattstratton/bowie`,
 
-	Run: func(bowielib *cobra.Command, args []string) {
+	Run: func(cmd *cobra.Command, args []string) {
 		ChangeLog(userName, projectName) // nolint: errcheck
 	},
 }
@@ -59,8 +63,18 @@ func Execute() {
 
 // MyTag is the struct for a tag
 type MyTag struct {
-	Name string
-	Date time.Time
+	Name   string
+	Date   time.Time
+	RefURL string
+}
+
+type ChangeTag struct {
+	Name         string
+	Date         time.Time
+	RefURL       string
+	Enhancements []*github.Issue
+	Bugs         []*github.Issue
+	ClosedIssues []*github.Issue
 }
 
 // GetToken returns the GitHub token based on environment variable or flag (flag takes precedence)
@@ -87,24 +101,116 @@ func ChangeLog(username, project string) error {
 	sort.Slice(tags, func(i, j int) bool {
 		return tags[i].Date.After(tags[j].Date)
 	})
+
+	// find a rice.Box
+	// to compile,run `rice embed-go`
+	templateBox, err := rice.FindBox("../templates")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	templateName, _ := templateBox.String("CHANGELOG.md.tmpl")
+
+	t, err := template.New("CHANGELOG.md").Parse(templateName)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	f, _ := os.Create("CHANGELOG.md")
+	// if err != nil {
+	// 	return "Cannot create", err
+	// }
+	defer f.Close()
+
+	var ChangeTags []ChangeTag
 	for i, d := range tags {
-		fmt.Fprintf(color.Output, "%s %s \n", color.GreenString("Release:"), color.BlueString(d.Name))
-		fmt.Fprintf(color.Output, "%s \n", color.CyanString("Fixed issues:"))
-		// fmt.Println("Current tag: " + d.Name)
-		if i != (len(tags) - 1) { //@TODO Figure out how to get the last issues to show up
-			// fmt.Println("Next tag: " + tags[i+1].Name)
+		var thisTag ChangeTag
+		thisTag.Name = d.Name
+		thisTag.Date = d.Date
+		thisTag.RefURL = d.RefURL
+		if i != (len(tags) - 1) {
+			enhancements := []*github.Issue{}
+			bugs := []*github.Issue{}
+			closed := []*github.Issue{}
 			for _, issue := range issues {
+
 				if (issue.GetClosedAt().Before(d.Date)) && (issue.GetClosedAt().After(tags[i+1].Date)) {
-					fmt.Fprintf(color.Output, "* %s \n", color.GreenString(issue.GetTitle()))
-					// fmt.Println(issue.GetTitle())
+
+					switch GetIssueType(issue) {
+					case "enhancement":
+						enhancements = append(enhancements, issue)
+					case "bug":
+						bugs = append(bugs, issue)
+					case "closed":
+						closed = append(closed, issue)
+					}
+					if len(enhancements) > 0 {
+						thisTag.Enhancements = enhancements
+					}
+					if len(bugs) > 0 {
+						thisTag.Bugs = bugs
+					}
+					if len(closed) > 0 {
+						thisTag.ClosedIssues = closed
+					}
+
+				}
+			}
+
+		} else {
+			enhancements := []*github.Issue{}
+			bugs := []*github.Issue{}
+			closed := []*github.Issue{}
+			for _, issue := range issues {
+
+				if issue.GetClosedAt().Before(d.Date) {
+
+					switch GetIssueType(issue) {
+					case "enhancement":
+						enhancements = append(enhancements, issue)
+					case "bug":
+						bugs = append(bugs, issue)
+					case "closed":
+						closed = append(closed, issue)
+					}
+					if len(enhancements) > 0 {
+						thisTag.Enhancements = enhancements
+					}
+					if len(bugs) > 0 {
+						thisTag.Bugs = bugs
+					}
+					if len(closed) > 0 {
+						thisTag.ClosedIssues = closed
+					}
+
 				}
 			}
 
 		}
+		ChangeTags = append(ChangeTags, thisTag)
 	}
-
+	t.Execute(f, ChangeTags)
+	if err != nil {
+		fmt.Println(err, "template execute error")
+	} else {
+		fmt.Println("Created changelog")
+	}
 	return nil
 
+}
+
+func GetIssueType(issue *github.Issue) string {
+	for _, l := range issue.Labels {
+		switch l.GetName() {
+		case "enhancement":
+			return "enhancement"
+		case "bug":
+			return "bug"
+		default:
+			return "closed"
+		}
+	}
+	return "closed"
 }
 
 // GetTags gets the list of all tags for the username and project, and returns a map of them
@@ -115,21 +221,38 @@ func GetTags() ([]*MyTag, error) {
 	)
 	tc := oauth2.NewClient(ctx, ts)
 
+	var allTags []*github.RepositoryTag
+
 	client := github.NewClient(tc) //@TODO Change GetTags to be a methon on client
-
-	// list all tags in the repo
-	tags, _, err := client.Repositories.ListTags(ctx, userName, projectName, nil)
-
-	if err != nil {
-		return nil, errors.Wrap(err, "GitHub tag list failed")
+	tagOpts := &github.ListOptions{
+		PerPage: 50,
 	}
+	for {
+		tags, resp, err := client.Repositories.ListTags(
+			ctx,
+			userName,
+			projectName,
+			tagOpts,
+		)
+
+		if err != nil {
+			return nil, errors.Wrap(err, "GitHub tag list failed")
+		}
+		allTags = append(allTags, tags...)
+		if resp.NextPage == 0 {
+			break
+		}
+	}
+
 	taggers := []*MyTag{}
-	for _, d := range tags {
+	for _, d := range allTags {
 		sha := d.Commit.GetSHA()
 		tag, _, _ := client.Git.GetCommit(ctx, userName, projectName, sha)
+		ref, _, _ := client.Git.GetRef(ctx, userName, projectName, d.GetName())
 		someTag := new(MyTag)
 		someTag.Name = d.GetName()
 		someTag.Date = tag.Author.GetDate()
+		someTag.RefURL = ref.GetURL()
 		taggers = append(taggers, someTag)
 	}
 	return taggers, nil

@@ -31,18 +31,27 @@ func (c *githubClient) GetIssues(userName, projectName string) ([]*github.Issue,
 
 	// list all issues in the repo
 	issueOpts := &github.IssueListByRepoOptions{
-		State: "closed",
+		State:       "closed",
+		ListOptions: github.ListOptions{PerPage: 50},
 	}
 
-	issues, _, err := c.client.Issues.ListByRepo(
-		ctx,
-		userName,
-		projectName,
-		issueOpts,
-	)
-	if err != nil {
-		return nil, errors.Wrap(err, "GitHub issue list failed")
-	}
+	var allIssues []*github.Issue
+	for {
+		issues, resp, err := c.client.Issues.ListByRepo(
+			ctx,
+			userName,
+			projectName,
+			issueOpts,
+		)
 
-	return issues, nil
+		if err != nil {
+			return nil, errors.Wrap(err, "GitHub issue list failed")
+		}
+		allIssues = append(allIssues, issues...)
+		if resp.NextPage == 0 {
+			break
+		}
+		issueOpts.Page = resp.NextPage
+	}
+	return allIssues, nil
 }
