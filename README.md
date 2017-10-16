@@ -43,7 +43,7 @@ You can install `bowie` in multiple ways.
 
 ### Homebrew
 
-`brew install ...` *TODO: Not yet available*
+`brew install mattstratton/tap/bowie`
 
 ### Yum
 
