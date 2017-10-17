@@ -83,13 +83,6 @@ func Execute() {
 	RootCmd.Execute() // nolint: errcheck
 }
 
-// MyTag is the struct for a tag
-type MyTag struct {
-	Name   string
-	Date   time.Time
-	RefURL string
-}
-
 // ChangeTag is a git tag type, which includes all of the associated issues, etc
 type ChangeTag struct {
 	Name         string
@@ -248,7 +241,7 @@ func GetIssueType(issue *github.Issue) string {
 }
 
 // GetTags gets the list of all tags for the username and project, and returns a map of them
-func GetTags() ([]*MyTag, error) {
+func GetTags() ([]*ChangeTag, error) {
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
@@ -278,16 +271,17 @@ func GetTags() ([]*MyTag, error) {
 		}
 	}
 
-	taggers := []*MyTag{}
+	tags := []*ChangeTag{}
 	for _, d := range allTags {
-		sha := d.Commit.GetSHA()
-		tag, _, _ := client.Git.GetCommit(ctx, userName, projectName, sha)
+		// sha := d.Commit.GetSHA()
+		tag, _, _ := client.Git.GetCommit(ctx, userName, projectName, d.Commit.GetSHA())
 		ref, _, _ := client.Git.GetRef(ctx, userName, projectName, d.GetName())
-		someTag := new(MyTag)
-		someTag.Name = d.GetName()
-		someTag.Date = tag.Author.GetDate()
-		someTag.RefURL = ref.GetURL()
-		taggers = append(taggers, someTag)
+
+		thisTag := new(ChangeTag)
+		thisTag.Name = d.GetName()
+		thisTag.Date = tag.Author.GetDate()
+		thisTag.RefURL = ref.GetURL()
+		tags = append(tags, thisTag)
 	}
-	return taggers, nil
+	return tags, nil
 }
