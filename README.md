@@ -1,3 +1,9 @@
+# bowie
+
+A pretty changelog generator
+
+Built with :heart: by [@mattstratton](https://github.com/mattstratton) in Go.
+
 [![travis Status](https://travis-ci.org/mattstratton/bowie.svg?branch=master)](https://travis-ci.org/mattstratton/bowie) [![Build status](https://ci.appveyor.com/api/projects/status/u7pu7ins2csxngxu?svg=true)](https://ci.appveyor.com/project/mattstratton/bowie)
  [![Go Report Card](https://goreportcard.com/badge/github.com/mattstratton/bowie)](https://goreportcard.com/report/github.com/mattstratton/bowie) [![GoDoc](https://godoc.org/github.com/mattstratton/bowie?status.svg)](http://godoc.org/github.com/mattstratton/bowie) [![GitHub release](https://img.shields.io/github/release/mattstratton/bowie.svg)](https://github.com/mattstratton/bowie/releases) [![MIT License](http://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![ZenHub](https://raw.githubusercontent.com/ZenHubIO/support/master/zenhub-badge.png)](https://app.zenhub.com/workspace/o/mattstratton/bowiecli/)<br />
 [![Ebert](https://ebertapp.io/github/mattstratton/bowie.svg)](https://ebertapp.io/github/mattstratton/bowie) [![BCH compliance](https://bettercodehub.com/edge/badge/mattstratton/bowie?branch=master)](https://bettercodehub.com/results/mattstratton/bowie) [![Coverage Status](https://coveralls.io/repos/github/mattstratton/bowie/badge.svg?branch=master)](https://coveralls.io/github/mattstratton/bowie?branch=master) [![codebeat badge](https://codebeat.co/badges/cbd7bfdf-e8d6-44b4-a377-20662bb2dbac)](https://codebeat.co/projects/github-com-mattstratton-bowie-master)
@@ -6,10 +12,6 @@
 > Time may change me<br>
 > But I can't trace time<br>
 > *-- David Bowie*
-
-A pretty changelog generator 
-
-Built with :heart: by [@mattstratton](https://github.com/mattstratton) in Go.
 
 Inspired by [skywinder/github-changelog-generator](https://github.com/skywinder/github-changelog-generator).
 
@@ -69,7 +71,7 @@ There will be other flags later. Also, remember to set the environment variable 
 
 ### GitHub token
 
-`bowie` requires a GitHub token to function. 
+`bowie` requires a GitHub token to function.
 
 Follow these steps:
 
@@ -82,28 +84,28 @@ You can set an environment variable by running the following command at the prom
 
     export BOWIE_GITHUB_TOKEN="«your-40-digit-github-token»"
 
-
 ## Contributing
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/mattstratton/bowie/tags). 
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/mattstratton/bowie/tags).
 
 ## Authors
 
-* **Matt Stratton** - *Initial work* - [mattstratton](https://github.com/mattstratton)
+- **Matt Stratton** - *Initial work* - [mattstratton](https://github.com/mattstratton)
 
 ## Acknowledgments
 
-* [skywinder/github-changelog-generator](https://github.com/skywinder/github-changelog-generator)
-* [goreleaser/goreleaser](https://github.com/goreleaser/goreleaser)
-* [spf13/cobra](https://github.com/spf13/cobra)
-* Logo via [David Bowie by James Fenton](https://thenounproject.com/term/david-bowie/128345/) from [the Noun Project](https://thenounproject.com/)
+- [skywinder/github-changelog-generator](https://github.com/skywinder/github-changelog-generator)
+- [goreleaser/goreleaser](https://github.com/goreleaser/goreleaser)
+- [spf13/cobra](https://github.com/spf13/cobra)
+- Logo via [David Bowie by James Fenton](https://thenounproject.com/term/david-bowie/128345/) from [the Noun Project](https://thenounproject.com/)
+
 ## License
 
-bowie - A pretty changelog generator 
+bowie - A pretty changelog generator
 
 |                      |                                          |
 |:---------------------|:-----------------------------------------|
