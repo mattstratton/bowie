@@ -38,6 +38,6 @@ deploy:
 
 # Coveralls stuff
 travis:
-	$(HOME)/gopath/bin/goveralls -service=travis-ci
+	$(HOME)/gopath/bin/goveralls -service=travis-ci || echo "push to coveralls failed"
 
 .DEFAULT_GOAL := build
