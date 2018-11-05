@@ -56,7 +56,7 @@ If you feel like you have things going well, please run the full tests:
 $ make ci
 ```
 
-##3 Create a commit
+### Create a commit
 
 Commit messages should be well formatted.
 Start your commit message with a title in the imperative, i.e., "Updates function foo" vs "Updated function foo". Capitalize it.
