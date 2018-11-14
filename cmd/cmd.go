@@ -111,6 +111,8 @@ func ChangeLog(username, project string) error { // nolint: gocyclo
 
 	fmt.Fprintf(color.Output, "Your username is %s and your projectname is %s \n", color.GreenString(userName), color.GreenString(projectName))
 
+	fmt.Println("Getting list of all issues.....")
+
 	issues, _ := c.GetIssues(userName, projectName)
 
 	tags, _ := GetTags()
@@ -272,6 +274,7 @@ func GetTags() ([]*ChangeTag, error) {
 	}
 
 	tags := []*ChangeTag{}
+	fmt.Println("Getting list of all tags...")
 	for _, d := range allTags {
 		// sha := d.Commit.GetSHA()
 		tag, _, _ := client.Git.GetCommit(ctx, userName, projectName, d.Commit.GetSHA())
