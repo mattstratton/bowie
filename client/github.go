@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/google/go-github/github"
 	"github.com/pkg/errors"
@@ -32,7 +33,7 @@ func (c *githubClient) GetIssues(userName, projectName string) ([]*github.Issue,
 	// list all issues in the repo
 	issueOpts := &github.IssueListByRepoOptions{
 		State:       "closed",
-		ListOptions: github.ListOptions{PerPage: 50},
+		ListOptions: github.ListOptions{PerPage: 300},
 	}
 
 	var allIssues []*github.Issue
@@ -43,7 +44,7 @@ func (c *githubClient) GetIssues(userName, projectName string) ([]*github.Issue,
 			projectName,
 			issueOpts,
 		)
-
+		fmt.Print("* ")
 		if err != nil {
 			return nil, errors.Wrap(err, "GitHub issue list failed")
 		}

@@ -115,11 +115,11 @@ func ChangeLog(username, project string) error { // nolint: gocyclo
 
 	issues, _ := c.GetIssues(userName, projectName)
 
+	fmt.Println("Done getting list of all issues.....")
 	tags, _ := GetTags()
 	sort.Slice(tags, func(i, j int) bool {
 		return tags[i].Date.After(tags[j].Date)
 	})
-
 	// find a rice.Box
 	// to compile,run `rice embed-go`
 	templateBox, err := rice.FindBox("../templates")
@@ -254,7 +254,7 @@ func GetTags() ([]*ChangeTag, error) {
 
 	client := github.NewClient(tc) //@TODO Change GetTags to be a methon on client
 	tagOpts := &github.ListOptions{
-		PerPage: 50,
+		PerPage: 300,
 	}
 	for {
 		tags, resp, err := client.Repositories.ListTags(
