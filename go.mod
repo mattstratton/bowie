@@ -1,6 +1,6 @@
 module github.com/mattstratton/bowie
 
-go 1.23.3
+go 1.23
 
 require (
 	github.com/GeertJohan/go.rice v1.0.3
