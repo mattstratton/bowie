@@ -73,9 +73,9 @@ func init() {
 	var err error
 	token, err = GetToken()
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatalf("%v", err)
 	}
+
 }
 
 // Execute is the main root command of bowie
